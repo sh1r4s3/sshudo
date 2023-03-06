@@ -1,0 +1,31 @@
+#!/bin/zsh
+
+local _user=
+local _envs=
+# Parse command line arguments
+TMPARGS="$(getopt -n "$0" -o u: -l preserve-env:  -- "$@")" ||
+    {echo "Wops"; return 1;}
+
+eval set -- "$TMPARGS"
+
+while :; do
+    case "$1" in
+        --)
+            shift; break ;;
+        -u)
+            shift; _user="$1" ;;
+        --preserve-env)
+            shift; _envs="$1" ;;
+        *)
+            break ;;
+    esac
+    shift
+done
+
+[ -n "$_user" ] || _user=root
+
+if [ -z "$_envs" ]; then
+    SUDO_USER=$USER ssh -t "${_user}@local" "cd $PWD && ${*:-exec $SHELL}"
+else
+    SUDO_USER=$USER ssh -t -o "SendEnv=${_envs:gs/,/ }" "${_user}@local" "cd $PWD && ${*:-exec $SHELL}"
+fi
