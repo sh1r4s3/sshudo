@@ -3,7 +3,7 @@
 local _user=
 local _envs=
 # Parse command line arguments
-TMPARGS="$(getopt -n "$0" -o u: -l preserve-env:  -- "$@")" ||
+TMPARGS="$(getopt -q -n "$0" -o '+u:' -l preserve-env:  -- "$@")" ||
     {echo "Wops"; return 1;}
 
 eval set -- "$TMPARGS"
